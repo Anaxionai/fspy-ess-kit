@@ -23,8 +23,8 @@ The versions the course uses are in [`VERSIONS.md`](../VERSIONS.md).
 | uv and Python 3.12 | Windows | Week 1, Launchpad task 6 |
 | Git Bash as VS Code's terminal | Windows | Week 1, Launchpad task 12 |
 | The course kit | Windows, in your home folder: `~/fspy-ess-kit` | Week 1, Launchpad task 12 |
-| WSL 2 (a Linux system inside Windows) | Windows; Docker Desktop runs on it | Week 1, Launchpad task 12 |
-| Docker Desktop | Windows, with the WSL 2 engine | Week 1, Launchpad task 12 |
+| WSL 2 (a Linux system inside Windows) | Windows; Docker Desktop runs on it | Week 1, Launchpad task 13 |
+| Docker Desktop | Windows, with the WSL 2 engine | Week 1, Launchpad task 13 |
 | The Smart App Control test (Step 12) | Windows | Week 1, Launchpad task 12 |
 | Node.js 24 and npm | Windows | Week 6, the start of P3 Match Centre |
 
@@ -74,7 +74,9 @@ uv run --python 3.12 python --version
 
 You see `Python 3.12.` and more numbers. uv's Python is the only Python you need. When a course command says `uv run`, uv starts this Python for you.
 
-## Part 2, week 1 (task 12): Git Bash in VS Code, the kit, WSL 2 and Docker Desktop
+## Part 2, week 1 (tasks 12 and 13): Git Bash in VS Code, the kit, WSL 2 and Docker Desktop
+
+Task 12 does Steps 4 to 7 and Step 12, all in Git Bash. Task 13 does Steps 8 to 10: only the `wsl` commands there run in PowerShell.
 
 ### Step 4: Make Git Bash the terminal in VS Code
 
@@ -83,7 +85,7 @@ You see `Python 3.12.` and more numbers. uv's Python is the only Python you need
 
 This is the same as the setting `"terminal.integrated.defaultProfile.windows": "Git Bash"`.
 
-Check it: open a new terminal with Ctrl+`. The prompt shows `MINGW64`, and `uname -s` prints a line that starts with `MINGW64`.
+Check it: open a new terminal (**Terminal**, then **New Terminal** in the top menu). The prompt shows `MINGW64`, and `uname -s` prints a line that starts with `MINGW64`.
 
 ### Step 5: Line endings
 
@@ -93,14 +95,18 @@ Linux containers and servers need LF: a script saved with CRLF fails inside a co
 1. In VS Code, open **Settings** (Ctrl+,) and search for `eol`.
 2. Set **Files: Eol** to `\n`. This is the setting `"files.eol": "\n"`.
 
-Check it: open a new file. The status bar at the bottom right shows `LF`, not `CRLF`.
+Check it: open a new file. The status bar at the bottom right shows `LF`, not `CRLF`. In Git Bash, this prints the setting:
+
+```bash
+grep eol "$APPDATA/Code/User/settings.json"
+```
 
 ### Step 6: Python and UTF-8
 
 In Git Bash, Python cannot print characters such as `₹` or `█` through a pipe or into a file, unless UTF-8 mode is on.
-Turn it on once, in **PowerShell**:
+Turn it on once, in Git Bash (the same command works in PowerShell):
 
-```powershell
+```bash
 setx PYTHONUTF8 1
 ```
 
