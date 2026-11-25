@@ -1,0 +1,44 @@
+# Changes for the live server only (FSPY-ESS kit, deploy/README.md, Part 4).
+# Copy it next to your compose.yml:
+#     cp ~/fspy-ess-kit/deploy/compose.prod.example.yml capstone/compose.prod.yml
+#
+# It is an override: Compose reads compose.yml first, then this file on top of it.
+# On the server, in capstone/, always name both files:
+#     docker compose -f compose.yml -f compose.prod.yml up -d --build
+#     docker compose -f compose.yml -f compose.prod.yml ps
+# On your laptop, plain `docker compose up` reads only compose.yml, so local work
+# does not change.
+#
+# The server's capstone/.env (never committed) holds two lines:
+#     POSTGRES_PASSWORD=<a new password: letters and digits only>
+#     SITE_DOMAIN=<name>.duckdns.org
+#
+# Service names (db, api, web) must match your compose.yml.
+
+services:
+  db:
+    # Start again by itself after a crash or a reboot of the server.
+    restart: unless-stopped
+
+  api:
+    restart: unless-stopped
+    # !reset empties the ports list from compose.yml, so port 8000 is not published.
+    # Only Caddy (in web) is reachable from the internet; it reaches the API as api:8000.
+    ports: !reset []
+
+  web:
+    restart: unless-stopped
+    environment:
+      # The address Caddy serves. A real name turns on automatic HTTPS.
+      SITE_ADDRESS: ${SITE_DOMAIN:?set SITE_DOMAIN in .env}
+    # !override replaces the laptop's 8080:80 with the two web ports.
+    ports: !override
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Caddy keeps its certificate here. Never delete this volume to "retry":
+      # Let's Encrypt gives one name only 5 certificates every 7 days.
+      - caddy-data:/data
+
+volumes:
+  caddy-data:

@@ -1,0 +1,61 @@
+# FSPY-ESS cloud lab: the databases the course uses, on your laptop.
+#
+# Run these in Git Bash, in this folder (~/fspy-ess-kit/cloudlab).
+# Start it:
+#   docker compose --profile core up -d
+# Stop it:
+#   docker compose --profile core down
+# Stop it and delete its data:
+#   docker compose --profile core down -v
+#
+# One profile: core. README.md has the ports and passwords.
+
+name: cloudlab
+
+services:
+  # PostgreSQL 16 (the image also carries the pgvector extension, which this course does not use).
+  postgres:
+    image: pgvector/pgvector:0.8.7-pg16
+    profiles: ["core"]
+    environment:
+      POSTGRES_USER: railseat
+      POSTGRES_PASSWORD: railseat
+      POSTGRES_DB: railseat
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U railseat -d railseat"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  # Redis 7: a fast key-value store, for a cache or rate limits if your capstone needs one.
+  redis:
+    image: redis:7.4.12-alpine
+    profiles: ["core"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  # Mailpit: catches every email your app sends (SMTP 1025); read them at http://localhost:8025.
+  mailpit:
+    image: axllent/mailpit:v1.33.1
+    profiles: ["core"]
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"      # accept any SMTP user name and password
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"  # allow that login without TLS (local only)
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  postgres-data:
+  redis-data:
